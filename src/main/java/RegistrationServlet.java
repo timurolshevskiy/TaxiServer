@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.scholota.taxi.Birdman;
 import com.scholota.taxi.Taxist;
 import database.dao.DaoFactory;
 import database.logic.TaxistHibernate;
@@ -22,15 +23,19 @@ public class RegistrationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         String reqString = req.getParameter("taxist");
+
+
         Taxist reqTaxist = gson.fromJson(reqString, Taxist.class);
         PrintWriter writer = resp.getWriter();
-//        try {
-//            DaoFactory.getInstance().getTaxistDao().addTaxist(new TaxistHibernate(reqTaxist));
-//            writer.print(gson.toJson("ZAREGANO"));
-//        } catch (SQLException e) {
-//            writer.print(gson.toJson("FAIL " + e.getMessage()));
-//        }
-        writer.print("privet");
+        try {
+            TaxistHibernate th = new TaxistHibernate(reqTaxist);
+            DaoFactory.getInstance().getTaxistDao().addTaxist(th);
+            writer.print(gson.toJson("ZAREGANO"));
+        } catch (SQLException e) {
+            writer.print(gson.toJson("FAIL " + e.getMessage()));
+        }
         writer.flush();
     }
 }
+
+

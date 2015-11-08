@@ -1,5 +1,7 @@
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.scholota.taxi.PassengerQuery;
+import com.scholota.taxi.Taxist;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,7 +17,12 @@ import java.util.List;
 public class PassengerServlet extends HttpServlet {
 
     private final TaxiManager taxiManager = TaxiManager.getInstance();
-    private final Gson gson = new Gson();
+    private final Gson gson;
+
+    PassengerServlet() {
+        GsonBuilder gb = new GsonBuilder().setPrettyPrinting();
+        gson = gb.create();
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -23,9 +30,12 @@ public class PassengerServlet extends HttpServlet {
         PassengerQuery passengerQuery = gson.fromJson(query, PassengerQuery.class);
         resp.setContentType("application/json");
         PrintWriter writer = resp.getWriter();
-        List<String> taxists = taxiManager.getTaxists();
-        String answerString = taxists.get(0) + "for" + passengerQuery.getQueryStart();
-        writer.print(gson.toJson(answerString));
+
+        Taxist taxist = taxiManager.getBest(passengerQuery);
+        //Taxist taxist = new Taxist("pass", "emal", "name", 111, "mod", "col", "nemb");
+
+        writer.print(gson.toJson(taxist));
+        writer.flush();
     }
 
     @Override

@@ -1,4 +1,7 @@
 import com.google.gson.Gson;
+import com.scholota.taxi.PassengerQuery;
+import com.scholota.taxi.Taxist;
+import database.dao.DaoFactory;
 import database.logic.TaxistHibernate;
 
 import javax.servlet.ServletException;
@@ -18,20 +21,36 @@ public class TaxistServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp);
+        String jsonTaxist = req.getParameter("taxist");
+        Taxist taxist = gson.fromJson(jsonTaxist, Taxist.class);
+        tm.addTaxist(taxist);
+        PassengerQuery answer = null;
+
+//        try {
+//            Thread.sleep(15000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        synchronized (tm) {
+            while ((answer = tm.getPassenger(taxist)) == null) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        resp.setContentType("application/json");
+        PrintWriter pw = resp.getWriter();
+        pw.print(gson.toJson(answer));
+        //pw.print(gson.toJson(new PassengerQuery("start", "finish", 10, 1.2, 1.2, "Parasha")));
+        pw.flush();
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String login = req.getParameter("login");
-//        TaxistHibernate taxistHibernate = new TaxistHibernate(); //db.get(login);
-//        tm.addTaxist(taxistHibernate);
-//
-//        while(taxistHibernate.getPassenger() == null);
 
-        resp.setContentType("application/json");
-        PrintWriter pw = resp.getWriter();
-        pw.print(gson.toJson("ddos"));
-        pw.flush();
     }
 }

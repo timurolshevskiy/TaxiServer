@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 
 @Entity
-@Table(name = "user")
+@Table(name = "taxist")
 public class TaxistHibernate {
 
     private PassengerQuery passengerQuery;
@@ -25,6 +25,8 @@ public class TaxistHibernate {
     private String color;
     private String carNumber;
 
+    public TaxistHibernate() {}
+
     public TaxistHibernate(Taxist taxist) {
         password = taxist.getPassword();
         email = taxist.getEmail();
@@ -33,10 +35,6 @@ public class TaxistHibernate {
         model = taxist.getModel();
         color = taxist.getColor();
         carNumber = taxist.getCarNumber();
-    }
-
-    public PassengerQuery getPassengerQuery() {
-        return passengerQuery;
     }
 
     public void setPassengerQuery(PassengerQuery passengerQuery) {
@@ -123,8 +121,39 @@ public class TaxistHibernate {
         passengerQuery = p;
     }
 
-    public synchronized PassengerQuery getPassenger() {
+    public synchronized PassengerQuery passenger() {
         return passengerQuery;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TaxistHibernate)) return false;
+
+        TaxistHibernate that = (TaxistHibernate) o;
+
+        if (phoneNumber != that.phoneNumber) return false;
+        if (passengerQuery != null ? !passengerQuery.equals(that.passengerQuery) : that.passengerQuery != null)
+            return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        if (email != null ? !email.equals(that.email) : that.email != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (model != null ? !model.equals(that.model) : that.model != null) return false;
+        if (color != null ? !color.equals(that.color) : that.color != null) return false;
+        return !(carNumber != null ? !carNumber.equals(that.carNumber) : that.carNumber != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = passengerQuery != null ? passengerQuery.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (int) (phoneNumber ^ (phoneNumber >>> 32));
+        result = 31 * result + (model != null ? model.hashCode() : 0);
+        result = 31 * result + (color != null ? color.hashCode() : 0);
+        result = 31 * result + (carNumber != null ? carNumber.hashCode() : 0);
+        return result;
+    }
 }
