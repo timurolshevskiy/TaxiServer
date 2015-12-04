@@ -25,6 +25,10 @@ public class TaxistHibernate {
     private String color;
     private String carNumber;
 
+    private double price;
+    private double rating;
+    private int count;
+
     public TaxistHibernate() {}
 
     public TaxistHibernate(Taxist taxist) {
@@ -35,6 +39,9 @@ public class TaxistHibernate {
         model = taxist.getModel();
         color = taxist.getColor();
         carNumber = taxist.getCarNumber();
+        price = taxist.getPrice();
+        rating = taxist.getRating();
+        count = taxist.getCount();
     }
 
     public void setPassengerQuery(PassengerQuery passengerQuery) {
@@ -115,6 +122,33 @@ public class TaxistHibernate {
 
     public void setCarNumber(String carNumber) {
         this.carNumber = carNumber;
+    }
+
+    @Column(name = "price")
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    @Column(name = "rating")
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    @Column(name = "count")
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public synchronized void setPassenger(PassengerQuery p) {

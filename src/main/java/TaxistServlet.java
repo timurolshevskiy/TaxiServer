@@ -21,25 +21,16 @@ public class TaxistServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+
         String jsonTaxist = req.getParameter("taxist");
         Taxist taxist = gson.fromJson(jsonTaxist, Taxist.class);
         tm.addTaxist(taxist);
         PassengerQuery answer = null;
 
-//        try {
-//            Thread.sleep(15000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-        synchronized (tm) {
-            while ((answer = tm.getPassenger(taxist)) == null) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+        while(answer == null) {
+            answer = tm.getPassenger(taxist);
         }
 
         resp.setContentType("application/json");
@@ -47,6 +38,7 @@ public class TaxistServlet extends HttpServlet {
         pw.print(gson.toJson(answer));
         //pw.print(gson.toJson(new PassengerQuery("start", "finish", 10, 1.2, 1.2, "Parasha")));
         pw.flush();
+        //tm.clear();
     }
 
     @Override

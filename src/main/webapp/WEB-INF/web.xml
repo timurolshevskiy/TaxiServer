@@ -25,6 +25,31 @@
         <servlet-class>RegistrationServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>RemoveTaxist</servlet-name>
+        <servlet-class>RemoveTaxistServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>RefreshLocTaxist</servlet-name>
+        <servlet-class>RefreshLocTaxist</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>RefreshLocPassenger</servlet-name>
+        <servlet-class>RefreshLocPassenger</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>Meeting</servlet-name>
+        <servlet-class>MeetingServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>LoginServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>ServletFirst</servlet-name>
         <url-pattern>/dir1</url-pattern>
@@ -44,5 +69,29 @@
         <servlet-name>TaxistServlet</servlet-name>
         <url-pattern>/taxist</url-pattern>
     </servlet-mapping>
-    
+
+    <servlet-mapping>
+        <servlet-name>RemoveTaxist</servlet-name>
+        <url-pattern>/removetx</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RefreshLocTaxist</servlet-name>
+        <url-pattern>/refreshtx</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RefreshLocPassenger</servlet-name>
+        <url-pattern>/refreshps</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Meeting</servlet-name>
+        <url-pattern>/taxinear</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
 </web-app>

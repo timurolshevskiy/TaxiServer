@@ -1,5 +1,7 @@
 import com.scholota.taxi.PassengerQuery;
 import com.scholota.taxi.Taxist;
+import database.dao.DaoFactory;
+import database.dao.TaxistDao;
 import database.logic.TaxistHibernate;
 
 import java.util.ArrayList;
@@ -13,47 +15,57 @@ import java.util.Map;
 public class TaxiManager {
 
     private static int R = 6371;
-    private static final TaxiManager TAXI_MANAGER_INSTANCE = new TaxiManager();
+    private static TaxiManager TAXI_MANAGER_INSTANCE = new TaxiManager();
 
     //private Map<Taxist, LatLng> taxists = new Map<Taxist, LatLng>();
     private Map<String, List<Taxist>> regions = new HashMap<String, List<Taxist>>();
     private Map<Taxist, PassengerQuery> taxists = new HashMap<Taxist, PassengerQuery>();
 
+    private static final TaxistDao TAXIST_DAO = DaoFactory.getInstance().getTaxistDao();
+
     private TaxiManager() {
-        Taxist taxist = new Taxist();
-        taxist.setLatLng(50, 36);
-        taxist.setRegion("Kharkiv");
-        regions.put("Kharkiv", new ArrayList<Taxist>());
-        regions.get("Kharkiv").add(taxist);
+//        Taxist taxist = new Taxist();
+//        taxist.setLatLng(50, 36);
+//        taxist.setRegion("ГђВҐГђВ°Г‘\u0080Г‘\u008CГђВєГђВѕГђВІ");
+//        regions.put("ГђВҐГђВ°Г‘\u0080Г‘\u008CГђВєГђВѕГђВІ", new ArrayList<Taxist>());
+//        regions.get("ГђВҐГђВ°Г‘\u0080Г‘\u008CГђВєГђВѕГђВІ").add(taxist);
     }
 
     public static synchronized TaxiManager getInstance() {
         return TAXI_MANAGER_INSTANCE;
     }
 
+
+    public static synchronized TaxistDao dao() {
+        return TAXIST_DAO;
+    }
+
     public synchronized Taxist getBest(PassengerQuery passengerQuery) {
-        //! если нет региона
+        //! пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
         List<Taxist> taxistsInRegion = regions.get(passengerQuery.getRegion());
+        if (taxistsInRegion.size() == 0) {
+            return null;
+        }
         Taxist best = taxistsInRegion.get(0);
         double bestDistance = calculateDistance(best.getLat(), best.getLng(), passengerQuery.getLat(), passengerQuery.getLng());
         for(Taxist tx : taxistsInRegion) {
-            double tempDistance = calculateDistance(best.getLat(), best.getLng(), passengerQuery.getLat(), passengerQuery.getLng());
+            double tempDistance = calculateDistance(tx.getLat(), tx.getLng(), passengerQuery.getLat(), passengerQuery.getLng());
             if (bestDistance > tempDistance) {
                 best = tx;
                 bestDistance = tempDistance;
             }
         }
-        taxists.put(best, passengerQuery);
         taxistsInRegion.remove(best);
+        taxists.put(best, passengerQuery);
+
         //notifyAll();
-        //! если список пустой
         return best;
     }
 
-    static double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
-        Double latDistance = toRad(lat2-lat1);
-        Double lonDistance = toRad(lng2-lng1);
+    private static double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+        Double latDistance = toRad(lat2 - lat1);
+        Double lonDistance = toRad(lng2 - lng1);
         Double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
                 Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
                         Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
@@ -71,15 +83,41 @@ public class TaxiManager {
         String txRegion = taxist.getRegion();
         if(!regions.containsKey(txRegion)) regions.put(txRegion, new ArrayList<Taxist>());
         List<Taxist> tx = regions.get(taxist.getRegion());
+        taxists.remove(taxist);
+        tx.remove(taxist); //ensure, that list doesnt contain taxist
         tx.add(taxist);
     }
 
-    public synchronized void removeTaxist(Taxist taxist) {
-        taxists.remove(taxist);
+    public synchronized void removePair(PassengerQuery passengerQuery) {
+        taxists.remove(getTaxist(passengerQuery));
     }
 
-    public PassengerQuery getPassenger(Taxist taxist) {
+    public synchronized void removeTaxist(Taxist taxist) {
+        regions.get(taxist.getRegion()).remove(taxist);
+    }
+
+    public synchronized PassengerQuery getPassenger(Taxist taxist) {
         return taxists.get(taxist);
+    }
+
+    public void clear() {
+        TAXI_MANAGER_INSTANCE = new TaxiManager();
+    }
+
+    public Taxist getTaxist(PassengerQuery passengerQuery) {
+        for(Taxist taxist : taxists.keySet()) {
+            if(taxists.get(taxist).equals(passengerQuery)) return taxist; // trebuet equals
+        }
+        throw new IllegalArgumentException();
+    }
+
+    public synchronized boolean changeTaxistLoc(Taxist taxist) {
+        if (taxists.containsKey(taxist)) {
+            PassengerQuery fromMap = taxists.remove(taxist);
+            taxists.put(taxist, fromMap);
+            return true;
+        }
+        return false;
     }
 
 }
